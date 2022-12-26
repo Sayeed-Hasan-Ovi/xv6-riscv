@@ -89,3 +89,20 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// trace system call with number n
+uint64
+sys_trace(void)
+{
+  int n;
+  argint(0, &n);
+  return trace(n);
+}
+
+
+// return the information of free memory and process
+uint64
+sys_sysinfo(void)
+{
+  return sysinfo();
+}

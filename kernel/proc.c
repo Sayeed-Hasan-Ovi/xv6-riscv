@@ -322,6 +322,9 @@ fork(void)
   np->state = RUNNABLE;
   release(&np->lock);
 
+  // trace freed
+  np->traced_id = 0;
+  
   return pid;
 }
 
@@ -680,4 +683,43 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+// initialize trace system call
+int
+trace(int n)
+{
+  struct proc *p;
+  p = myproc();
+
+  p->traced_id = n;
+
+  return 0;
+}
+
+// sysinfo system call prints:
+// free-memory: _________ bytes
+// n_proc: ___
+int
+sysinfo(void)
+{
+  struct proc *p;
+  p = myproc();
+
+  // sysinfo system call prints:
+  // free-memory: 133373952 bytes
+  // n_proc: 3
+  printf("\nsysinfo system call prints:\n");
+  printf("free-memory: %d bytes\n", freebytes());
+
+  int n_proc = 0;
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->state != UNUSED)
+      n_proc++;
+    release(&p->lock);
+  }
+  printf("n_proc: %d\n", n_proc);
+
+  return 0;
 }
